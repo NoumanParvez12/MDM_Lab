@@ -1,3 +1,4 @@
+//Components LED-RED 8 ,PIC18F4550
 #include <p18f4550.h>
 
 void delay(unsigned int time)
