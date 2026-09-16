@@ -1,0 +1,185 @@
+// ================================================================
+// PIC18F4550 - LED BLINK PROGRAM
+// LED connected to RD0
+// Crystal frequency = 20 MHz
+// Compiler = XC8
+// ================================================================
+
+
+
+// 1. CONFIGURATION BITS
+// These settings configure the basic hardware of the PIC.
+
+// -------- CONFIG1L --------
+#pragma config PLLDIV = 1       // PLL Prescaler: No prescaling
+#pragma config CPUDIV = OSC1_PLL2 // CPU clock division
+#pragma config USBDIV = 1       // USB clock source
+
+// -------- CONFIG1H --------
+#pragma config FOSC = HS        // High-Speed external oscillator
+#pragma config FCMEN = OFF      // Fail-Safe Clock Monitor disabled
+#pragma config IESO = OFF       // Internal/External oscillator switching disabled
+
+// -------- CONFIG2L --------
+#pragma config PWRT = OFF       // Power-up Timer disabled
+#pragma config BOR = ON         // Brown-out Reset enabled
+#pragma config BORV = 3         // Brown-out Reset voltage
+#pragma config VREGEN = OFF     // USB voltage regulator disabled
+
+// -------- CONFIG2H --------
+#pragma config WDT = OFF        // Watchdog Timer disabled
+#pragma config WDTPS = 32768    // Watchdog Timer postscaler
+
+// -------- CONFIG3H --------
+#pragma config CCP2MX = ON      // CCP2 multiplexing
+#pragma config PBADEN = OFF     // PORTB pins configured as digital
+#pragma config LPT1OSC = OFF    // Low-power Timer1 oscillator disabled
+#pragma config MCLRE = ON       // MCLR pin enabled
+
+// -------- CONFIG4L --------
+#pragma config STVREN = ON      // Stack overflow/underflow reset enabled
+#pragma config LVP = OFF        // Low-voltage programming disabled
+#pragma config ICPRT = OFF      // Dedicated programming port disabled
+#pragma config XINST = OFF      // Extended instruction set disabled
+
+// -------- CONFIG5L --------
+#pragma config CP0 = OFF       // Code protection disabled
+#pragma config CP1 = OFF
+#pragma config CP2 = OFF
+#pragma config CP3 = OFF
+
+// -------- CONFIG5H --------
+#pragma config CPB = OFF       // Boot block code protection disabled
+#pragma config CPD = OFF       // Data EEPROM code protection disabled
+
+// -------- CONFIG6L --------
+#pragma config WRT0 = OFF      // Program memory write protection disabled
+#pragma config WRT1 = OFF
+#pragma config WRT2 = OFF
+#pragma config WRT3 = OFF
+
+// -------- CONFIG6H --------
+#pragma config WRTC = OFF      // Configuration register write protection
+#pragma config WRTB = OFF      // Boot block write protection
+#pragma config WRTD = OFF      // Data EEPROM write protection
+
+// -------- CONFIG7L --------
+#pragma config EBTR0 = OFF     // Table read protection disabled
+#pragma config EBTR1 = OFF
+#pragma config EBTR2 = OFF
+#pragma config EBTR3 = OFF
+
+// -------- CONFIG7H --------
+#pragma config EBTRB = OFF     // Boot block table read protection disabled
+
+
+// ================================================================
+// 2. HEADER FILE
+// ================================================================
+
+#include <xc.h>
+
+
+// ================================================================
+// 3. CRYSTAL FREQUENCY
+// ================================================================
+// We are using a 20 MHz external crystal.
+// XC8 uses this value to calculate __delay_ms() and __delay_us().
+// ================================================================
+
+#define _XTAL_FREQ 20000000
+
+
+// ================================================================
+// 4. MAIN FUNCTION
+// ================================================================
+
+void main(void)
+{
+    // Variable used for the delay loop
+    unsigned char i;
+
+
+    // ============================================================
+    // STEP 1: Configure RD0 as OUTPUT
+    // ============================================================
+    // TRISD controls the direction of PORTD pins.
+    //
+    // TRISD bit = 0  --> OUTPUT
+    // TRISD bit = 1  --> INPUT
+    //
+    // Therefore:
+    // TRISD0 = 0 means RD0 is an output.
+    // ============================================================
+
+    TRISDbits.TRISD0 = 0;
+
+
+    // ============================================================
+    // STEP 2: Initially turn the LED OFF
+    // ============================================================
+    // LATD is the output latch register.
+    //
+    // LATD0 = 0 --> RD0 outputs LOW
+    // LATD0 = 1 --> RD0 outputs HIGH
+    // ============================================================
+
+    LATDbits.LATD0 = 0;
+
+
+    // ============================================================
+    // STEP 3: Infinite loop
+    // ============================================================
+    // while(1) means the statements inside the loop
+    // will execute continuously.
+    // ============================================================
+
+    while(1)
+    {
+
+      
+        // Turn LED ON
+        // RD0 becomes HIGH (logic 1).
+      
+        LATDbits.LATD0 = 1;
+
+
+        // ========================================================
+        // Keep LED ON for 500 milliseconds
+        // ========================================================
+        // __delay_ms(10) = 10 milliseconds
+        //
+        // Loop executes 50 times:
+        //
+        // 50 × 10 ms = 500 ms
+        //
+        // Therefore, LED stays ON for 0.5 seconds.
+        // ========================================================
+
+        for(i = 0; i < 50; i++)
+        {
+            __delay_ms(10);
+        }
+
+
+        // ========================================================
+        // Turn LED OFF
+        // ========================================================
+
+        LATDbits.LATD0 = 0;
+
+
+        // ========================================================
+        // Keep LED OFF for 500 milliseconds
+        // ========================================================
+        // Again:
+        //
+        // 50 × 10 ms = 500 ms
+        // ========================================================
+
+        for(i = 0; i < 50; i++)
+        {
+            __delay_ms(10);
+        }
+    }
+}
