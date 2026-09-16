@@ -1,0 +1,201 @@
+
+//components 7seg-mpx2cc , pic18f4550
+#include <p18f4550.h>
+
+
+// ============================================================
+// 7-SEGMENT DISPLAY CODES
+// Common-Cathode 7-Segment Display
+// PORTB -> a, b, c, d, e, f, g, dp
+// ============================================================
+
+#define ZERO   0x3F
+#define ONE    0x06
+#define TWO    0x5B
+#define THREE  0x4F
+#define FOUR   0x66
+#define FIVE   0x6D
+#define SIX    0x7D
+#define SEVEN  0x07
+#define EIGHT  0x7F
+#define NINE   0x6F
+
+
+// ============================================================
+// DIGIT SELECT PINS
+// RA0 -> First digit (Tens)
+// RA1 -> Second digit (Units)
+// ============================================================
+
+#define DIGIT1 LATAbits.LATA0
+#define DIGIT2 LATAbits.LATA1
+
+
+// ============================================================
+// ARRAY CONTAINING 7-SEGMENT CODES FOR 0-9
+// ============================================================
+
+const unsigned char segData[10] =
+{
+    ZERO,
+    ONE,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE
+};
+
+
+// ============================================================
+// DELAY FUNCTION
+// ============================================================
+
+void delay(unsigned int time)
+{
+    unsigned int i;
+
+    while(time--)
+    {
+        for(i = 0; i < 500; i++)
+        {
+            ;       // Empty loop used to create delay
+        }
+    }
+}
+
+
+// ============================================================
+// MAIN FUNCTION
+// ============================================================
+
+void main(void)
+{
+    unsigned char count;
+    unsigned char tens;
+    unsigned char units;
+
+    unsigned int refresh;
+
+
+    // ========================================================
+    // CONFIGURE PORTS
+    // ========================================================
+
+    // Configure all analog-capable pins as DIGITAL
+    ADCON1 = 0x0F;
+
+
+    // ========================================================
+    // PORTB CONFIGURATION
+    // ========================================================
+
+    // RB0-RB7 configured as OUTPUT
+    TRISB = 0x00;
+
+    // Initially turn all segments OFF
+    LATB = 0x00;
+
+
+    // ========================================================
+    // PORTA CONFIGURATION
+    // ========================================================
+
+    // RA0 configured as OUTPUT
+    TRISAbits.TRISA0 = 0;
+
+    // RA1 configured as OUTPUT
+    TRISAbits.TRISA1 = 0;
+
+
+    // ========================================================
+    // TURN BOTH DIGITS OFF INITIALLY
+    // ========================================================
+    // Here HIGH = OFF and LOW = ON.
+    // This depends on the transistor/common-cathode
+    // connection used for digit selection.
+    // ========================================================
+
+    DIGIT1 = 1;
+    DIGIT2 = 1;
+
+
+    // ========================================================
+    // MAIN LOOP
+    // ========================================================
+
+    while(1)
+    {
+
+        // ====================================================
+        // COUNT FROM 00 TO 99
+        // ====================================================
+
+        for(count = 0; count < 100; count++)
+        {
+
+            // Extract tens digit
+            tens = count / 10;
+
+            // Extract units digit
+            units = count % 10;
+
+
+            // =================================================
+            // MULTIPLEXING / DISPLAY REFRESH
+            // =================================================
+            // Both digits are displayed alternately very fast.
+            // Due to persistence of vision, we see both digits
+            // continuously.
+            // =================================================
+
+            for(refresh = 0; refresh < 125; refresh++)
+            {
+
+                // =================================================
+                // DISPLAY TENS DIGIT
+                // =================================================
+
+                // Turn both digits OFF
+                DIGIT1 = 1;
+                DIGIT2 = 1;
+
+                // Send tens digit pattern to PORTB
+                LATB = segData[tens];
+
+                // Turn first digit ON
+                DIGIT1 = 0;
+
+                // Keep it ON for a short time
+                delay(2);
+
+                // Turn first digit OFF
+                DIGIT1 = 1;
+
+
+                // =================================================
+                // DISPLAY UNITS DIGIT
+                // =================================================
+
+                // Turn both digits OFF
+                DIGIT1 = 1;
+                DIGIT2 = 1;
+
+                // Send units digit pattern to PORTB
+                LATB = segData[units];
+
+                // Turn second digit ON
+                DIGIT2 = 0;
+
+                // Keep it ON for a short time
+                delay(2);
+
+                // Turn second digit OFF
+                DIGIT2 = 1;
+            }
+        }
+    }
+}
