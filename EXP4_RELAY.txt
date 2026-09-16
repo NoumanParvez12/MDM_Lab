@@ -1,0 +1,73 @@
+//components CAP 33pF  , CELL 5V , CRYSTAL 20MHz , LAMP ,LED-RED,NPN, RELAY 12V ,SWITCH
+
+#include <xc.h>
+
+#define _XTAL_FREQ 20000000
+
+
+// ============================================================
+// CONFIGURATION BITS
+// ============================================================
+
+#pragma config FOSC = HS        // Use external High-Speed crystal
+#pragma config WDT = OFF        // Watchdog Timer OFF
+#pragma config LVP = OFF        // Low Voltage Programming OFF
+#pragma config PBADEN = OFF     // PORTB pins are digital
+
+
+// ============================================================
+// MAIN FUNCTION
+// ============================================================
+
+void main(void)
+{
+    // ========================================================
+    // 1. CONFIGURE ANALOG PINS AS DIGITAL
+    // ========================================================
+
+    ADCON1 = 0x0F;
+
+
+    // ========================================================
+    // 2. CONFIGURE INPUT AND OUTPUT PINS
+    // ========================================================
+
+    // RA3 = INPUT
+    // Used to receive signal from switch/sensor
+    TRISAbits.TRISA3 = 1;
+
+
+    // RC1 = OUTPUT
+    // Used to control relay
+    TRISCbits.TRISC1 = 0;
+
+
+    // ========================================================
+    // 3. INITIAL STATE
+    // ========================================================
+
+    // Relay initially OFF
+    LATCbits.LATC1 = 0;
+
+
+    // ========================================================
+    // 4. CONTINUOUSLY CHECK INPUT
+    // ========================================================
+
+    while(1)
+    {
+        // Check whether RA3 is HIGH
+        if(PORTAbits.RA3 == 1)
+        {
+            // RA3 = HIGH
+            // Turn relay ON
+            LATCbits.LATC1 = 1;
+        }
+        else
+        {
+            // RA3 = LOW
+            // Turn relay OFF
+            LATCbits.LATC1 = 0;
+        }
+    }
+}
