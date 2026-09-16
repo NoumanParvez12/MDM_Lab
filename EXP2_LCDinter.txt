@@ -1,4 +1,4 @@
-//components 
+//components LM016L , POT, PIC18F4550
 
 #include <p18f4550.h>
 
